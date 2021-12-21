@@ -1,8 +1,8 @@
-// Copyright (c) 2017 Steven Roose <steven@stevenroose.org>.
+// Copyright (c) 2021 Asppj  <asppj@foxmail.com>.
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
-package gonfig
+package goconfig
 
 import (
 	"encoding/hex"
@@ -130,7 +130,7 @@ func setOS(args []string, env map[string]string) {
 	}
 }
 
-func TestGonfig(t *testing.T) {
+func Testgoconfig(t *testing.T) {
 	testCases := []struct {
 		desc string
 
@@ -797,7 +797,7 @@ func TestGonfig(t *testing.T) {
 			// Write config file.
 			var filename string
 			if tc.fileContent != "" {
-				file, err := ioutil.TempFile("", "gonfig")
+				file, err := ioutil.TempFile("", "goconfig")
 				require.NoError(t, err)
 				_, err = file.WriteString(tc.fileContent)
 				require.NoError(t, err)

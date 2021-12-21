@@ -1,8 +1,8 @@
-// Copyright (c) 2017 Steven Roose <steven@stevenroose.org>.
+// Copyright (c) 2021 Asppj  <asppj@foxmail.com>.
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
-package gonfig
+package goconfig
 
 import (
 	"encoding"
@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-const ( // The values for the struct field tags that we use.
+var ( // The values for the struct field tags that we use.
 	fieldTagID          = "id"
 	fieldTagShort       = "short"
 	fieldTagDefault     = "default"
@@ -28,6 +28,11 @@ var ( // Some type variables for comparison.
 	typeOfTextUnmarshaler = reflect.TypeOf((*encoding.TextUnmarshaler)(nil)).Elem()
 	typeOfByteSlice       = reflect.TypeOf([]byte{})
 )
+
+// SetFiledTagID set `id:"name"` as `yaml:"name"`
+func SetFiledTagID(tagID string) {
+	fieldTagID = tagID
+}
 
 // option holds all useful data and metadata for a single config option variable
 // of the config struct.

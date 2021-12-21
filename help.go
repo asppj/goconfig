@@ -1,4 +1,4 @@
-package gonfig
+package goconfig
 
 import (
 	"fmt"

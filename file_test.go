@@ -1,8 +1,8 @@
-// Copyright (c) 2017 Steven Roose <steven@stevenroose.org>.
+// Copyright (c) 2021 Asppj  <asppj@foxmail.com>.
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
-package gonfig
+package goconfig
 
 import (
 	"io/ioutil"
@@ -25,7 +25,7 @@ func TestParseFile_FileNotExist_Custom(t *testing.T) {
 }
 
 func TestParseFile_InvalidJSON(t *testing.T) {
-	file, err := ioutil.TempFile("", "gonfig")
+	file, err := ioutil.TempFile("", "goconfig")
 	require.NoError(t, err)
 
 	_, err = file.WriteString(`{
@@ -42,7 +42,7 @@ func TestParseFile_InvalidJSON(t *testing.T) {
 }
 
 func TestParseFile_InvalidYAML(t *testing.T) {
-	file, err := ioutil.TempFile("", "gonfig")
+	file, err := ioutil.TempFile("", "goconfig")
 	require.NoError(t, err)
 
 	_, err = file.WriteString("test: \"value\n")
@@ -57,7 +57,7 @@ func TestParseFile_InvalidYAML(t *testing.T) {
 }
 
 func TestParseFile_InvalidTOML(t *testing.T) {
-	file, err := ioutil.TempFile("", "gonfig")
+	file, err := ioutil.TempFile("", "goconfig")
 	require.NoError(t, err)
 
 	_, err = file.WriteString("test = value\n")
@@ -72,7 +72,7 @@ func TestParseFile_InvalidTOML(t *testing.T) {
 }
 
 func TestParseFile_InvalidAny(t *testing.T) {
-	file, err := ioutil.TempFile("", "gonfig")
+	file, err := ioutil.TempFile("", "goconfig")
 	require.NoError(t, err)
 
 	_, err = file.WriteString("&$_@")
@@ -87,7 +87,7 @@ func TestParseFile_InvalidAny(t *testing.T) {
 }
 
 func TestParseFile_MultiDecoder(t *testing.T) {
-	file, err := ioutil.TempFile("", "gonfig")
+	file, err := ioutil.TempFile("", "goconfig")
 	require.NoError(t, err)
 
 	_, err = file.WriteString("test = \"value\"\n")

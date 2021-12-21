@@ -1,6 +1,6 @@
 // +build windows
 
-package gonfig
+package goconfig
 
 import (
 	"golang.org/x/sys/windows"

@@ -1,8 +1,8 @@
-// Copyright (c) 2017 Steven Roose <steven@stevenroose.org>.
+// Copyright (c) 2021 Asppj  <asppj@foxmail.com>.
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
-package gonfig
+package goconfig
 
 import (
 	"encoding"
@@ -15,7 +15,7 @@ import (
 )
 
 // isSlice returns whether the value is of a slice type.  In the context of
-// gonfig, []byte doesn't count as a slice type.
+// goconfig, []byte doesn't count as a slice type.
 func isSlice(v reflect.Value) bool {
 	return v.Kind() == reflect.Slice && v.Type() != typeOfByteSlice
 }

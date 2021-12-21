@@ -1,8 +1,8 @@
-// Copyright (c) 2017 Steven Roose <steven@stevenroose.org>.
+// Copyright (c) 2021 Asppj  <asppj@foxmail.com>.
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
-package gonfig
+package goconfig
 
 import (
 	"fmt"

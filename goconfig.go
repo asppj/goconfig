@@ -1,8 +1,8 @@
-// Copyright (c) 2017 Steven Roose <steven@stevenroose.org>.
+// Copyright (c) 2021 Asppj  <asppj@foxmail.com>.
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
-package gonfig
+package goconfig
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"reflect"
 )
 
-// Conf is used to specify the intended behavior of gonfig.
+// Conf is used to specify the intended behavior of goconfig.
 type Conf struct {
 	// ConfigFileVariable is the config variable that will be read before looking
 	// for a config file.  If no value is specified in the environment variables
@@ -31,7 +31,7 @@ type Conf struct {
 	//  - DecoderYAML
 	//  - DecoderTOML
 	//  - DecoderJSON
-	// If no decoder function is provided, gonfig tries to guess the function
+	// If no decoder function is provided, goconfig tries to guess the function
 	// based on the file extension and otherwise tries them all in the above
 	// mentioned order.
 	FileDecoder FileDecoderFn
@@ -46,7 +46,7 @@ type Conf struct {
 	// variables.
 	EnvDisable bool
 	// EnvPrefix is the prefix to use for the the environment variables.
-	// gonfig does not add an underscore after the prefix.
+	// goconfig does not add an underscore after the prefix.
 	EnvPrefix string
 
 	// HelpDisable disables printing the help message when the --help or -h flag
@@ -131,7 +131,7 @@ func setDefaults(s *setup) error {
 		}
 
 		if !isZero(opt.value) {
-			// The value has already set before calling gonfig.  In this case,
+			// The value has already set before calling goconfig.  In this case,
 			// we don't touch it aymore.
 			continue
 		}
@@ -159,7 +159,7 @@ func setDefaults(s *setup) error {
 }
 
 // Load loads the configuration of your program in the struct at c.
-// Use conf to specify how gonfig should look for configuration variables.
+// Use conf to specify how goconfig should look for configuration variables.
 //
 // This method can panic if there was a problem in the configuration struct that
 // is used (which should not happen at runtime), but will always try to produce
@@ -185,7 +185,12 @@ func Load(c interface{}, conf Conf) error {
 		panic(fmt.Errorf("error in default values: %v", err))
 	}
 
-	// Parse in order of opposite priority: file, env, flags
+	// Parse in order of opposite priority: env, file, flags
+	if !s.conf.EnvDisable {
+		if err := parseEnv(s); err != nil {
+			return err
+		}
+	}
 
 	if !s.conf.FileDisable {
 		filename, err := findCustomConfigFile(s)
@@ -214,12 +219,6 @@ func Load(c interface{}, conf Conf) error {
 		}
 	}
 
-	if !s.conf.EnvDisable {
-		if err := parseEnv(s); err != nil {
-			return err
-		}
-	}
-
 	if !s.conf.FlagDisable {
 		if err := parseFlags(s); err != nil {
 			return err
@@ -232,7 +231,7 @@ func Load(c interface{}, conf Conf) error {
 // LoadRawFile loads the configuration of your program in the struct at c from
 // the given raw config file contents.
 // In this method, conf is only used to pass the FileDecoder option.
-// Use conf to specify how gonfig should look for configuration variables.
+// Use conf to specify how goconfig should look for configuration variables.
 //
 // Read documentation of Load for effects.
 func LoadRawFile(c interface{}, fileContent []byte, conf Conf) error {
@@ -243,7 +242,7 @@ func LoadRawFile(c interface{}, fileContent []byte, conf Conf) error {
 
 // LoadWithRawFile loads the configuration of your program in the struct at c
 // by using the given contents for the config file.
-// Use conf to specify how gonfig should look for configuration variables.
+// Use conf to specify how goconfig should look for configuration variables.
 // As opposed to LoadRawFile, in this method, the other config sources are also
 // loaded.
 //
@@ -261,18 +260,18 @@ func LoadWithRawFile(c interface{}, fileContent []byte, conf Conf) error {
 		panic(fmt.Errorf("config: error in default values: %v", err))
 	}
 
+	if !s.conf.EnvDisable {
+		if err := parseEnv(s); err != nil {
+			return err
+		}
+	}
+
 	if s.conf.FileDisable {
 		panic("config: can't use LoadWithRawFile with DisableFile set to true")
 	}
 
 	if err := parseFileContent(s, fileContent); err != nil {
 		return err
-	}
-
-	if !s.conf.EnvDisable {
-		if err := parseEnv(s); err != nil {
-			return err
-		}
 	}
 
 	if !s.conf.FlagDisable {
@@ -286,7 +285,7 @@ func LoadWithRawFile(c interface{}, fileContent []byte, conf Conf) error {
 
 // LoadWithMap loads the configuration of your program in the struct at c
 // by using the given map.  All other config sources will be ignored.
-// Use conf to specify how gonfig should look for configuration variables.
+// Use conf to specify how goconfig should look for configuration variables.
 //
 // Read documentation of Load for effects.
 func LoadMap(c interface{}, vars map[string]interface{}, conf Conf) error {
@@ -297,7 +296,7 @@ func LoadMap(c interface{}, vars map[string]interface{}, conf Conf) error {
 
 // LoadWithMap loads the configuration of your program in the struct at c
 // by using the given map.
-// Use conf to specify how gonfig should look for configuration variables.
+// Use conf to specify how goconfig should look for configuration variables.
 // As opposed to LoadMap, in this method, the other config sources are also
 // loaded.
 //

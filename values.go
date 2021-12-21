@@ -1,8 +1,8 @@
-// Copyright (c) 2017 Steven Roose <steven@stevenroose.org>.
+// Copyright (c) 2021 Asppj  <asppj@foxmail.com>.
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
-package gonfig
+package goconfig
 
 import (
 	"errors"
@@ -54,7 +54,7 @@ func setValue(toSet, v reflect.Value) error {
 	return convertibleError(v, toSet.Type())
 }
 
-// isSupportedType returns whether the type t is supported by gonfig for parsing.
+// isSupportedType returns whether the type t is supported by goconfig for parsing.
 func isSupportedType(t reflect.Type) error {
 	if t.Implements(typeOfTextUnmarshaler) {
 		return nil

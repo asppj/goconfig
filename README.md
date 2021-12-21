@@ -1,13 +1,8 @@
-[![Build Status](https://travis-ci.org/stevenroose/gonfig.svg?branch=master)](https://travis-ci.org/stevenroose/gonfig)
-[![Coverage Status](https://coveralls.io/repos/github/stevenroose/gonfig/badge.svg?branch=master)](https://coveralls.io/github/stevenroose/gonfig?branch=master)
-[![Go Report Card](https://goreportcard.com/badge/github.com/stevenroose/gonfig)](https://goreportcard.com/report/github.com/stevenroose/gonfig)
-[![GoDoc](https://godoc.org/github.com/stevenroose/gonfig?status.svg)](https://godoc.org/github.com/stevenroose/gonfig)
-
 
 Description
 ===========
 
-gonfig is a configuration library designed using the following principles:
+goconfig is a configuration library designed using the following principles:
 
 1. The configuration variables are fully specified and loaded into a struct 
    variable.
@@ -34,15 +29,17 @@ Furthermore, it has the following features:
 
 - printing help message (and hiding individual flags)
 
+## priority
+Parse in order of opposite priority: `tag`, `env`, `file`, `flags`
 
 Documentation
 =============
 
-Documentation can be found on godoc.org: https://godoc.org/github.com/stevenroose/gonfig
+Documentation can be found on godoc.org: https://godoc.org/github.com/asppj/goconfig
 
 ```go
 // Load loads the configuration of your program in the struct at c.
-// Use conf to specify how gonfig should look for configuration variables.
+// Use conf to specify how goconfig should look for configuration variables.
 // This method can panic if there was a problem in the configuration struct that
 // is used (which should not happen at runtime), but will always try to produce
 // an error instead if the user provided incorrect values.
@@ -56,7 +53,7 @@ Documentation can be found on godoc.org: https://godoc.org/github.com/stevenroos
 //     - hidden: Hides the option from help outputs.
 func Load(c interface{}, conf Conf) error
 
-// Conf is used to specify the intended behavior of gonfig.
+// Conf is used to specify the intended behavior of goconfig.
 type Conf struct {
 	// ConfigFileVariable is the config variable that will be read before looking
 	// for a config file.  If no value is specified in the environment variables
@@ -77,7 +74,7 @@ type Conf struct {
 	//  - DecoderYAML
 	//  - DecoderTOML
 	//  - DecoderJSON
-	// If no decoder function is provided, gonfig tries to guess the function
+	// If no decoder function is provided, goconfig tries to guess the function
 	// based on the file extension and otherwise tries them all in the above
 	// mentioned order.
 	FileDecoder FileDecoderFn
@@ -92,7 +89,7 @@ type Conf struct {
 	// variables.
 	EnvDisable bool
 	// EnvPrefix is the prefix to use for the the environment variables.
-	// gonfig does not add an underscore after the prefix.
+	// goconfig does not add an underscore after the prefix.
 	EnvPrefix string
 
 	// HelpDisable disables printing the help message when the --help or -h flag
@@ -130,19 +127,20 @@ var config = struct {
 }{}
 
 func main() {
-	err := gonfig.Load(&config, gonfig.Conf{
+	err := goconfig.Load(&config, goconfig.Conf{
 		ConfigFileVariable: "config", // enables passing --configfile myfile.conf
 
 		FileDefaultFilename: "myapp.conf",
         // The default decoder will try TOML, YAML and JSON.
-		FileDecoder: gonfig.DecoderTOML,
+		FileDecoder: goconfig.DecoderTOML,
 
 		EnvPrefix: "MYAPP_",
 	})
 }
 ```
+# [Origin](https://github.com/stevenroose/gonfig)
 
 License
 =======
 
-gonfig is licensed by an MIT license as can be found in the LICENSE file.
+goconfig is licensed by an MIT license as can be found in the LICENSE file.
