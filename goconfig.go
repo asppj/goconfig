@@ -59,6 +59,7 @@ type Conf struct {
 	// HelpDescription is the description to print for the help flag.
 	// By default, this is "show this help menu".
 	HelpDescription string
+	TagOption       *TagOption // tag option required
 }
 
 // setup is the struct that keeps track of the state of the program throughout
@@ -118,7 +119,7 @@ func findCustomConfigFile(s *setup) (string, error) {
 
 // setDefaults writes the default values in the field values if a default value
 // has been provided.
-func setDefaults(s *setup) error {
+func setDefaults(s *setup, tagOption TagOption) error {
 	for _, opt := range s.allOpts {
 		if !opt.defaultSet {
 			continue
@@ -149,7 +150,7 @@ func setDefaults(s *setup) error {
 			}
 		}
 
-		if err := setValue(opt.value, opt.defaultValue); err != nil {
+		if err := setValue(opt.value, opt.defaultValue, tagOption); err != nil {
 			return fmt.Errorf("error setting default value for option "+
 				"'%v' to '%v': %v", opt.id, opt.defaultValue, err)
 		}
@@ -173,15 +174,18 @@ func setDefaults(s *setup) error {
 //  - opts: comma-separated flags.  Supported flags are:
 //     - hidden: Hides the option from help outputs.
 func Load(c interface{}, conf Conf) error {
+	if conf.TagOption == nil {
+		conf.TagOption = NewSampleTagOption()
+	}
 	s := &setup{
 		conf: &conf,
 	}
-
-	if err := inspectConfigStructure(s, c); err != nil {
+	tagOption := *conf.TagOption
+	if err := inspectConfigStructure(s, c, tagOption); err != nil {
 		panic(fmt.Errorf("error in config structure: %v", err))
 	}
 
-	if err := setDefaults(s); err != nil {
+	if err := setDefaults(s, *conf.TagOption); err != nil {
 		panic(fmt.Errorf("error in default values: %v", err))
 	}
 
@@ -213,7 +217,7 @@ func Load(c interface{}, conf Conf) error {
 
 		if filename != "" {
 			s.configFilePath = filename
-			if err := parseFile(s); err != nil {
+			if err := parseFile(s, tagOption); err != nil {
 				return err
 			}
 		}
@@ -248,15 +252,18 @@ func LoadRawFile(c interface{}, fileContent []byte, conf Conf) error {
 //
 // Read documentation of Load for effects.
 func LoadWithRawFile(c interface{}, fileContent []byte, conf Conf) error {
+	if conf.TagOption == nil {
+		conf.TagOption = NewSampleTagOption()
+	}
 	s := &setup{
 		conf: &conf,
 	}
-
-	if err := inspectConfigStructure(s, c); err != nil {
+	tagOption := *conf.TagOption
+	if err := inspectConfigStructure(s, c, tagOption); err != nil {
 		panic(fmt.Errorf("config: error in structure: %v", err))
 	}
 
-	if err := setDefaults(s); err != nil {
+	if err := setDefaults(s, tagOption); err != nil {
 		panic(fmt.Errorf("config: error in default values: %v", err))
 	}
 
@@ -270,7 +277,7 @@ func LoadWithRawFile(c interface{}, fileContent []byte, conf Conf) error {
 		panic("config: can't use LoadWithRawFile with DisableFile set to true")
 	}
 
-	if err := parseFileContent(s, fileContent); err != nil {
+	if err := parseFileContent(s, fileContent, tagOption); err != nil {
 		return err
 	}
 
@@ -302,19 +309,22 @@ func LoadMap(c interface{}, vars map[string]interface{}, conf Conf) error {
 //
 // Read documentation of Load for effects.
 func LoadWithMap(c interface{}, vars map[string]interface{}, conf Conf) error {
+	if conf.TagOption == nil {
+		conf.TagOption = NewSampleTagOption()
+	}
 	s := &setup{
 		conf: &conf,
 	}
-
-	if err := inspectConfigStructure(s, c); err != nil {
+	tagOption := *conf.TagOption
+	if err := inspectConfigStructure(s, c, tagOption); err != nil {
 		panic(fmt.Errorf("config: error in structure: %v", err))
 	}
 
-	if err := setDefaults(s); err != nil {
+	if err := setDefaults(s, tagOption); err != nil {
 		panic(fmt.Errorf("config: error in default values: %v", err))
 	}
 
-	if err := parseMapOpts(vars, s.allOpts); err != nil {
+	if err := parseMapOpts(vars, s.allOpts, tagOption); err != nil {
 		return err
 	}
 

@@ -849,7 +849,7 @@ func TestFindConfigFile_WithFlag(t *testing.T) {
 	}
 	require.NoError(t, inspectConfigStructure(s, &struct {
 		ConfigFile string
-	}{}))
+	}{}, *NewSampleTagOption()))
 
 	filename, err := findCustomConfigFile(s)
 	require.NoError(t, err)
@@ -870,7 +870,7 @@ func TestFindConfigFile_WithEnv(t *testing.T) {
 	}
 	require.NoError(t, inspectConfigStructure(s, &struct {
 		ConfigFile string
-	}{}))
+	}{}, *NewSampleTagOption()))
 
 	filename, err := findCustomConfigFile(s)
 	require.NoError(t, err)
@@ -891,7 +891,7 @@ func TestFindConfigFile_VariableNotSet(t *testing.T) {
 	}
 	require.NoError(t, inspectConfigStructure(s, &struct {
 		ConfigFile string
-	}{}))
+	}{}, *NewSampleTagOption()))
 
 	filename, err := findCustomConfigFile(s)
 	require.NoError(t, err)
@@ -910,7 +910,7 @@ func TestFindConfigFile_VariableNotProvided(t *testing.T) {
 	}
 	require.NoError(t, inspectConfigStructure(s, &struct {
 		ConfigFileX string
-	}{}))
+	}{}, *NewSampleTagOption()))
 
 	assert.Panics(t, func() { findCustomConfigFile(s) })
 }

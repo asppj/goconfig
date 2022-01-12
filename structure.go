@@ -12,13 +12,31 @@ import (
 	"strings"
 )
 
-var ( // The values for the struct field tags that we use.
-	fieldTagID          = "id"
-	fieldTagShort       = "short"
-	fieldTagDefault     = "default"
-	fieldTagDescription = "desc"
-	fieldTagOpts        = "opts"
-)
+// const ( // The values for the struct field tags that we use.
+// 	fieldTagID          = "id"
+// 	fieldTagShort       = "short"
+// 	fieldTagDefault     = "default"
+// 	fieldTagDescription = "desc"
+// 	fieldTagOpts        = "opts"
+// )
+
+type TagOption struct {
+	IDTag      string
+	ShortTag   string
+	DefaultTag string
+	DescTag    string
+	OptsTag    string
+}
+
+func NewSampleTagOption() *TagOption {
+	return &TagOption{
+		IDTag:      "id",
+		ShortTag:   "short",
+		DefaultTag: "default",
+		DescTag:    "desc",
+		OptsTag:    "opts",
+	}
+}
 
 const ( // The values for the struct tag options.
 	fieldOptHidden = "hidden"
@@ -28,11 +46,6 @@ var ( // Some type variables for comparison.
 	typeOfTextUnmarshaler = reflect.TypeOf((*encoding.TextUnmarshaler)(nil)).Elem()
 	typeOfByteSlice       = reflect.TypeOf([]byte{})
 )
-
-// SetFiledTagID set `id:"name"` as `yaml:"name"`
-func SetFiledTagID(tagID string) {
-	fieldTagID = tagID
-}
 
 // option holds all useful data and metadata for a single config option variable
 // of the config struct.
@@ -71,10 +84,10 @@ func (o option) hasFieldOpt(opt string) bool {
 }
 
 // optionFromField creates a new option from the field information.
-func optionFromField(f reflect.StructField, parent *option) *option {
+func optionFromField(f reflect.StructField, parent *option, tagOption TagOption) *option {
 	opt := new(option)
 
-	id := f.Tag.Get(fieldTagID)
+	id := f.Tag.Get(tagOption.IDTag)
 	if len(id) == 0 {
 		id = strings.ToLower(f.Name)
 	}
@@ -87,10 +100,10 @@ func optionFromField(f reflect.StructField, parent *option) *option {
 		opt.fullIDParts = append(opt.fullIDParts, id)
 	}
 
-	opt.short = f.Tag.Get(fieldTagShort)
-	opt.defaul, opt.defaultSet = f.Tag.Lookup(fieldTagDefault)
-	opt.desc = f.Tag.Get(fieldTagDescription)
-	if opts, any := f.Tag.Lookup(fieldTagOpts); any {
+	opt.short = f.Tag.Get(tagOption.ShortTag)
+	opt.defaul, opt.defaultSet = f.Tag.Lookup(tagOption.DefaultTag)
+	opt.desc = f.Tag.Get(tagOption.DescTag)
+	if opts, any := f.Tag.Lookup(tagOption.OptsTag); any {
 		opt.opts = strings.Split(opts, ",")
 	}
 
@@ -102,7 +115,7 @@ func optionFromField(f reflect.StructField, parent *option) *option {
 // It returns first a slice of all the options of the struct and second a slice
 // of all the options of the slice including all options of the options of the
 // slice, in a recursive manner.
-func createOptionsFromStruct(v reflect.Value, parent *option) ([]*option, []*option, error) {
+func createOptionsFromStruct(v reflect.Value, parent *option, tagOption TagOption) ([]*option, []*option, error) {
 	var opts []*option
 	var allOpts []*option // recursively includes all subOpts
 
@@ -115,7 +128,7 @@ func createOptionsFromStruct(v reflect.Value, parent *option) ([]*option, []*opt
 			continue
 		}
 
-		opt := optionFromField(field, parent)
+		opt := optionFromField(field, parent, tagOption)
 		opt.value = value
 
 		if err := isSupportedType(field.Type); err != nil {
@@ -145,13 +158,13 @@ func createOptionsFromStruct(v reflect.Value, parent *option) ([]*option, []*opt
 			opt.isMap = true
 		} else if k == reflect.Struct {
 			opt.isParent = true
-			opt.subOpts, allSubOpts, err = createOptionsFromStruct(opt.value, opt)
+			opt.subOpts, allSubOpts, err = createOptionsFromStruct(opt.value, opt, tagOption)
 			if err != nil {
 				return nil, nil, err
 			}
 		} else if k == reflect.Ptr && t.Elem().Kind() == reflect.Struct {
 			opt.isParent = true
-			opt.subOpts, allSubOpts, err = createOptionsFromStruct(opt.value.Elem(), opt)
+			opt.subOpts, allSubOpts, err = createOptionsFromStruct(opt.value.Elem(), opt, tagOption)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -178,7 +191,7 @@ func createOptionsFromStruct(v reflect.Value, parent *option) ([]*option, []*opt
 
 // inspectConfigStructure inspects the config struct c and inspects it while
 // building the set of options and performing sanity checks.
-func inspectConfigStructure(s *setup, c interface{}) error {
+func inspectConfigStructure(s *setup, c interface{}, tagOption TagOption) error {
 	// First make sure that we have a pointer to a struct.
 	if reflect.TypeOf(c).Kind() != reflect.Ptr {
 		return errors.New("config variable must be a pointer to a struct")
@@ -189,7 +202,7 @@ func inspectConfigStructure(s *setup, c interface{}) error {
 		return errors.New("config variable must be a pointer to a struct")
 	}
 
-	opts, allOpts, err := createOptionsFromStruct(v, nil)
+	opts, allOpts, err := createOptionsFromStruct(v, nil, tagOption)
 	if err != nil {
 		return err
 	}

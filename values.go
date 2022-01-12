@@ -31,7 +31,7 @@ func setValueByString(v reflect.Value, s string) error {
 // If not, but the value is a string, it is passed to setValueByString.
 // If not, and both v and the option's value are is a slice, we try converting
 // the slice elements to the right elemens of the options slice.
-func setValue(toSet, v reflect.Value) error {
+func setValue(toSet, v reflect.Value, tagOption TagOption) error {
 	t := toSet.Type()
 	if v.Type().AssignableTo(t) {
 		toSet.Set(v)
@@ -48,7 +48,7 @@ func setValue(toSet, v reflect.Value) error {
 	}
 
 	if isSlice(toSet) && v.Type().Kind() == reflect.Slice {
-		return convertSlice(v, toSet)
+		return convertSlice(v, toSet, tagOption)
 	}
 
 	return convertibleError(v, toSet.Type())

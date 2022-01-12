@@ -14,14 +14,14 @@ import (
 func TestParseFile_FileNotExist_Default(t *testing.T) {
 	require.NoError(t, parseFile(&setup{
 		configFilePath: "/doesntexist.conf",
-	}))
+	}, *NewSampleTagOption()))
 }
 
 func TestParseFile_FileNotExist_Custom(t *testing.T) {
 	require.Error(t, parseFile(&setup{
 		configFilePath:   "/doesntexist.conf",
 		customConfigFile: true,
-	}))
+	}, *NewSampleTagOption()))
 }
 
 func TestParseFile_InvalidJSON(t *testing.T) {
@@ -38,7 +38,7 @@ func TestParseFile_InvalidJSON(t *testing.T) {
 		conf: &Conf{
 			FileDecoder: DecoderJSON,
 		},
-	}))
+	}, *NewSampleTagOption()))
 }
 
 func TestParseFile_InvalidYAML(t *testing.T) {
@@ -53,7 +53,7 @@ func TestParseFile_InvalidYAML(t *testing.T) {
 		conf: &Conf{
 			FileDecoder: DecoderYAML,
 		},
-	}))
+	}, *NewSampleTagOption()))
 }
 
 func TestParseFile_InvalidTOML(t *testing.T) {
@@ -68,7 +68,7 @@ func TestParseFile_InvalidTOML(t *testing.T) {
 		conf: &Conf{
 			FileDecoder: DecoderTOML,
 		},
-	}))
+	}, *NewSampleTagOption()))
 }
 
 func TestParseFile_InvalidAny(t *testing.T) {
@@ -83,7 +83,7 @@ func TestParseFile_InvalidAny(t *testing.T) {
 		conf: &Conf{
 			FileDecoder: DecoderTryAll,
 		},
-	}))
+	}, *NewSampleTagOption()))
 }
 
 func TestParseFile_MultiDecoder(t *testing.T) {
@@ -102,5 +102,5 @@ func TestParseFile_MultiDecoder(t *testing.T) {
 				DecoderTOML,
 			}),
 		},
-	}))
+	}, *NewSampleTagOption()))
 }

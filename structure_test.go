@@ -95,7 +95,7 @@ func TestOptionFromField(t *testing.T) {
 				Tag:  reflect.StructTag(tc.fieldTag),
 			}
 
-			result := optionFromField(field, &tc.parent)
+			result := optionFromField(field, &tc.parent, *NewSampleTagOption())
 
 			assert.Equal(t, &tc.expected, result)
 		})

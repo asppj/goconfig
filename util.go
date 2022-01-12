@@ -170,8 +170,8 @@ func parseSlice(v reflect.Value, s string) error {
 }
 
 // parseMapToStruct converts a map[string]interface{} into a struct value.
-func parseMapToStruct(from, to reflect.Value) error {
-	opts, _, err := createOptionsFromStruct(to, nil)
+func parseMapToStruct(from, to reflect.Value, tagOption TagOption) error {
+	opts, _, err := createOptionsFromStruct(to, nil, tagOption)
 	if err != nil {
 		// Here we panic since there is a problem in the config structure.
 		panic(fmt.Sprintf("error in config structure: "+
@@ -189,7 +189,7 @@ keys:
 					fromVal = fromVal.Elem()
 				}
 
-				if err := setValue(opt.value, fromVal); err != nil {
+				if err := setValue(opt.value, fromVal, tagOption); err != nil {
 					return fmt.Errorf("failed to set value in nested struct "+
 						"slice option '%v': %v", opt.fullID(), err)
 				}
@@ -215,7 +215,7 @@ func isKindOrPtrTo(t reflect.Type, k reflect.Kind) bool {
 
 // convertSlice converts the slice from into the slice to by converting all the
 // individual elements.
-func convertSlice(from, to reflect.Value) error {
+func convertSlice(from, to reflect.Value, tagOption TagOption) error {
 	subType := to.Type().Elem()
 	converted := reflect.MakeSlice(to.Type(), from.Len(), from.Len())
 	for i := 0; i < from.Len(); i++ {
@@ -234,7 +234,7 @@ func convertSlice(from, to reflect.Value) error {
 				inVal.Set(ptr)
 				inVal = ptr.Elem()
 			}
-			if err := parseMapToStruct(elem, inVal); err != nil {
+			if err := parseMapToStruct(elem, inVal, tagOption); err != nil {
 				return fmt.Errorf("failed to convert to struct: %v", err)
 			}
 

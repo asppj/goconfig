@@ -14,7 +14,7 @@ import (
 
 // parseMapOpts parses options from a map[string]interface{}.  This is used
 // for configuration file encodings that can decode to such a map.
-func parseMapOpts(j map[string]interface{}, opts []*option) error {
+func parseMapOpts(j map[string]interface{}, opts []*option, tagOption TagOption) error {
 	for _, opt := range opts {
 		val, set := j[opt.id]
 		if !set {
@@ -23,7 +23,7 @@ func parseMapOpts(j map[string]interface{}, opts []*option) error {
 
 		if opt.isParent {
 			if casted, ok := val.(map[string]interface{}); ok {
-				if err := parseMapOpts(casted, opt.subOpts); err != nil {
+				if err := parseMapOpts(casted, opt.subOpts, tagOption); err != nil {
 					return err
 				}
 			} else {
@@ -32,7 +32,7 @@ func parseMapOpts(j map[string]interface{}, opts []*option) error {
 					reflect.TypeOf(val), opt.fullID())
 			}
 		} else {
-			if err := setValue(opt.value, reflect.ValueOf(val)); err != nil {
+			if err := setValue(opt.value, reflect.ValueOf(val), tagOption); err != nil {
 				return fmt.Errorf("failed to set option '%v': %v",
 					opt.fullID(), err)
 			}
@@ -43,7 +43,7 @@ func parseMapOpts(j map[string]interface{}, opts []*option) error {
 }
 
 // parseFileContent parses the config file given its content.
-func parseFileContent(s *setup, content []byte) error {
+func parseFileContent(s *setup, content []byte, tagOption TagOption) error {
 	decoder := s.conf.FileDecoder
 	if decoder == nil {
 		// Look for the config file extension to determine the encoding.
@@ -66,7 +66,7 @@ func parseFileContent(s *setup, content []byte) error {
 	}
 
 	// Parse the map for the options.
-	if err := parseMapOpts(m, s.opts); err != nil {
+	if err := parseMapOpts(m, s.opts, tagOption); err != nil {
 		return fmt.Errorf("error loading config vars from config file: %v", err)
 	}
 
@@ -75,7 +75,7 @@ func parseFileContent(s *setup, content []byte) error {
 
 // parseFile parses the config file for all config options by delegating
 // the call to the method specific to the config file encoding specified.
-func parseFile(s *setup) error {
+func parseFile(s *setup, tagOption TagOption) error {
 	if _, err := os.Stat(s.configFilePath); os.IsNotExist(err) {
 		// Config file is not present.  We ignore this when we are using
 		// the default config file, but we escalate if the user provided
@@ -94,5 +94,5 @@ func parseFile(s *setup) error {
 			"error reading config file at %v: %v", s.configFilePath, err)
 	}
 
-	return parseFileContent(s, content)
+	return parseFileContent(s, content, tagOption)
 }
